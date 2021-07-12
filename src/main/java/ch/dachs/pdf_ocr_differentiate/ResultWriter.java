@@ -1,4 +1,4 @@
-package ch.dachs.pdf_ocr;
+package ch.dachs.pdf_ocr_differentiate;
 
 import java.io.IOException;
 import java.util.ArrayList;

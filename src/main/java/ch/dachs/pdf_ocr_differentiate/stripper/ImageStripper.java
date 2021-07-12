@@ -1,4 +1,4 @@
-package ch.dachs.pdf_ocr.stripper;
+package ch.dachs.pdf_ocr_differentiate.stripper;
 
 import java.io.IOException;
 import java.util.List;

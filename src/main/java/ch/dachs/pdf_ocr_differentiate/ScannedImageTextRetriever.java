@@ -1,4 +1,4 @@
-package ch.dachs.pdf_ocr;
+package ch.dachs.pdf_ocr_differentiate;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,8 +9,8 @@ import java.util.stream.Collectors;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 
-import ch.dachs.pdf_ocr.stripper.ImageStripper;
-import ch.dachs.pdf_ocr.stripper.TextAndTextPositionStripper;
+import ch.dachs.pdf_ocr_differentiate.stripper.ImageStripper;
+import ch.dachs.pdf_ocr_differentiate.stripper.TextAndTextPositionStripper;
 
 /**
  * Retrieves scanned image text from the document.

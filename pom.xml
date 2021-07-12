@@ -73,7 +73,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>ch.dachs.pdf_ocr.App</mainClass>
+							<mainClass>ch.dachs.pdf_ocr_differentiate.App</mainClass>
 						</manifest>
 					</archive>
 					<descriptorRefs>
