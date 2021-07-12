@@ -16,7 +16,8 @@ import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.pdmodel.graphics.PDXObject;
 import org.apache.pdfbox.pdmodel.graphics.form.PDFormXObject;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImage;
-import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
+
+import ch.dachs.pdf_ocr_differentiate.core.ImageInfo;
 
 /**
  * Extension of PDFStreamEngine class. It finds real images (not drawings).
@@ -25,7 +26,7 @@ import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
  */
 public class ImageStripper extends PDFStreamEngine {
 
-	private final List<PDImageXObject> pageImages;
+	private final List<ImageInfo> pageImages;
 
 	/**
 	 * Basic constructor. Adds all needed operators and result image list.
@@ -33,7 +34,7 @@ public class ImageStripper extends PDFStreamEngine {
 	 * @param pageImages the image result list
 	 * @throws IOException operator adding exception
 	 */
-	public ImageStripper(List<PDImageXObject> pageImages) throws IOException {
+	public ImageStripper(List<ImageInfo> pageImages) throws IOException {
 		addOperator(new Concatenate());
 		addOperator(new DrawObject());
 		addOperator(new SetGraphicsStateParameters());
@@ -56,13 +57,14 @@ public class ImageStripper extends PDFStreamEngine {
 			PDXObject xobject = getResources().getXObject(objectName);
 			// check if the object is an image object
 			if (xobject instanceof PDImage) {
-				PDImageXObject image = (PDImageXObject) xobject;
 				// gather image info
 				var trMatrix = getGraphicsState().getCurrentTransformationMatrix();
 				int imageWidth = (int) trMatrix.getScalingFactorX(); // displayed size in user space units
 				int imageHeight = (int) trMatrix.getScalingFactorY(); // displayed size in user space units
+				float xPosition = trMatrix.getTranslateX(); // positions in userSpaceUnits
+				float yPosition = trMatrix.getTranslateY(); // positions in userSpaceUnits
 				if (imageWidth > 1 && imageHeight > 1) {
-					pageImages.add(image);
+					pageImages.add(new ImageInfo(xPosition, yPosition, imageWidth, imageHeight));
 				}
 			} else if (xobject instanceof PDFormXObject) {
 				PDFormXObject form = (PDFormXObject) xobject;

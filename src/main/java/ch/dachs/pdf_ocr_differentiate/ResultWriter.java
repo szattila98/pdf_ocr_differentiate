@@ -28,21 +28,28 @@ public class ResultWriter {
 	/**
 	 * Writes a list of strings into a PDF file.
 	 * 
-	 * @param docLines list of unbroken string lines in a doc
+	 * @param imageLinesList list of lines per image
 	 * @throws IOException thrown when PDF cannot be written
 	 */
-	public void write(List<String> docLines) throws IOException {
+	public void write(List<List<String>> imageLinesList) throws IOException {
 		try (var document = new PDDocument()) {
 			// page information				
 			PDRectangle mediabox = new PDPage().getMediaBox();
 			int allowedWidth = (int) (mediabox.getWidth() - 2 * MARGIN);
 			float startX = mediabox.getLowerLeftX() + MARGIN;
 			float startY = mediabox.getUpperRightY() - MARGIN;
-			// breaking long lines
-			var brokenLines = breakStringToLines(docLines, allowedWidth);
-			// sublists for pages based on lines
 			var lineNoOnPage = (int) ((mediabox.getHeight() - 1.7 * MARGIN) / LEADING);
-			List<List<String>> lineLists = Lists.partition(brokenLines, lineNoOnPage);
+			// breaking long lines
+			List<List<String>> brokenLinesList = new ArrayList<>();
+			for (var imageLines : imageLinesList) {
+				var brokenLines = breakStringToLines(imageLines, allowedWidth);
+				brokenLinesList.add(brokenLines);
+			}
+			// sublists for pages based on lines
+			List<List<String>> lineLists = new ArrayList<>();
+			for (var brokenLines : brokenLinesList) {
+				 lineLists.addAll(Lists.partition(brokenLines, lineNoOnPage));
+			}
 			// writing to doc
 			for (var subList : lineLists) {
 				// new page

@@ -6,6 +6,8 @@ import java.util.List;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.pdfbox.text.TextPosition;
 
+import ch.dachs.pdf_ocr_differentiate.core.TextLine;
+
 /**
  * Extension of PDFTextStripper. Strips text and the word character positions.
  * 
@@ -13,7 +15,7 @@ import org.apache.pdfbox.text.TextPosition;
  */
 public class TextAndTextPositionStripper extends PDFTextStripper {
 	
-	private final List<String> textLines;
+	private final List<TextLine> textLines;
 
 	/**
 	 * Basic constructor. Sets the result list.
@@ -21,7 +23,7 @@ public class TextAndTextPositionStripper extends PDFTextStripper {
 	 * @param documentImageCaptions result list
 	 * @throws IOException thrown when the pdf cannot be processed
 	 */
-	public TextAndTextPositionStripper(List<String> textLines) throws IOException {
+	public TextAndTextPositionStripper(List<TextLine> textLines) throws IOException {
 		this.textLines = textLines;
 	}
 
@@ -30,7 +32,7 @@ public class TextAndTextPositionStripper extends PDFTextStripper {
 	 */
 	@Override
 	public void writeString(String text, List<TextPosition> textPositions) throws IOException {
-		textLines.add(text.trim());
+		textLines.add(new TextLine(text, textPositions));
 		super.writeString(text, textPositions);
 	}
 }

@@ -1,9 +1,12 @@
 package ch.dachs.pdf_ocr_differentiate;
 
 import java.io.IOException;
+import java.util.stream.Collectors;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import ch.dachs.pdf_ocr_differentiate.core.TextLine;
 
 /**
  * Main class of the application.
@@ -25,8 +28,10 @@ public class App {
 		}
 		var retriever = new ScannedImageTextRetriever();
 		try {
-			var text = retriever.retrieve(args[0]);
-			new ResultWriter().write(text);
+			var textLines = retriever.retrieve(args[0]).stream()
+					.map(textLineList -> textLineList.stream().map(TextLine::toString).collect(Collectors.toList()))
+					.collect(Collectors.toList());
+			new ResultWriter().write(textLines);
 			logger.info(SUCCESS_MSG);
 		} catch (IOException e) {
 			logger.error(FILE_OPERATION_ERR_MSG);
