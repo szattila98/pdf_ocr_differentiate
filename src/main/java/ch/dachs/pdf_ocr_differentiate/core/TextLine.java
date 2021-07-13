@@ -8,6 +8,8 @@ import lombok.Data;
 
 @Data
 public class TextLine {
+	private static final String SEPARATOR = " ";
+	
 	private String text;
 	private List<TextPosition> characterPositions;
 	private float firstCharacterXPosition;
@@ -22,9 +24,12 @@ public class TextLine {
 		this.yPosition = characterPositions.get(0).getTextMatrix().getTranslateY();
 	}
 	
-	public void concatText(String text, List<TextPosition> newCharacterPositions) {
-		this.text = this.text.concat(text);
-		this.characterPositions.addAll(newCharacterPositions);
+	public void concatTextLine(TextLine textLine) {
+		this.text = this.text.concat(SEPARATOR + textLine.getText());
+		this.characterPositions.addAll(textLine.getCharacterPositions());
+		this.firstCharacterXPosition = characterPositions.get(0).getTextMatrix().getTranslateX();
+		this.lastCharacterXPosition = characterPositions.get(characterPositions.size() - 1).getTextMatrix().getTranslateX();
+		this.yPosition = characterPositions.get(0).getTextMatrix().getTranslateY();
 	}
 	
 	@Override

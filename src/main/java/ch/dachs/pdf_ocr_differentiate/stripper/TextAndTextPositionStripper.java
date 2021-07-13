@@ -14,7 +14,10 @@ import ch.dachs.pdf_ocr_differentiate.core.TextLine;
  * @author Szőke Attila
  */
 public class TextAndTextPositionStripper extends PDFTextStripper {
-	
+
+	private static final int MAX_WORD_OFFSET_Y = 5;
+	private static final int MAX_WORD_OFFSET_X = 15;
+
 	private final List<TextLine> textLines;
 
 	/**
@@ -32,7 +35,20 @@ public class TextAndTextPositionStripper extends PDFTextStripper {
 	 */
 	@Override
 	public void writeString(String text, List<TextPosition> textPositions) throws IOException {
-		textLines.add(new TextLine(text, textPositions));
-		super.writeString(text, textPositions);
+		var trimmed = text.trim();
+		if (!textLines.isEmpty()) {
+			var lastLine = textLines.get(textLines.size() - 1);
+			var newLine = new TextLine(trimmed, textPositions);
+			// coupling text that should be one line but pdfbox broke it up
+			if (Math.abs(newLine.getYPosition() - lastLine.getYPosition()) < MAX_WORD_OFFSET_Y && newLine.getFirstCharacterXPosition()
+					- lastLine.getLastCharacterXPosition() < MAX_WORD_OFFSET_X) {
+				lastLine.concatTextLine(newLine);
+			} else {
+				textLines.add(new TextLine(trimmed, textPositions));
+			}
+		} else {
+			textLines.add(new TextLine(trimmed, textPositions));
+		}
+		super.writeString(trimmed, textPositions);
 	}
 }
