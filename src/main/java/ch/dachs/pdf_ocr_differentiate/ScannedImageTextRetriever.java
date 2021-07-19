@@ -3,11 +3,13 @@ package ch.dachs.pdf_ocr_differentiate;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import org.apache.pdfbox.pdmodel.PDDocument;
-import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
+import org.apache.pdfbox.Loader;
+import org.apache.pdfbox.pdmodel.font.PDFont;
+import org.apache.pdfbox.pdmodel.graphics.state.RenderingMode;
+import org.apache.pdfbox.text.TextPosition;
 
 import ch.dachs.pdf_ocr_differentiate.core.ImageInfo;
 import ch.dachs.pdf_ocr_differentiate.core.TextLine;
@@ -30,10 +32,10 @@ public class ScannedImageTextRetriever {
 	 */
 	public List<List<TextLine>> retrieve(String path) throws IOException {
 		// open document
-		try (var doc = PDDocument.load(new File(path))) {
+		try (var doc = Loader.loadPDF(new File(path))) {
 			int numberOfPages = doc.getNumberOfPages();
 			List<List<TextLine>> documentTextLinesPerImage = new ArrayList<>();
-			for (var currentPageNum = 1; currentPageNum < numberOfPages + 1; currentPageNum++) {
+			for (var currentPageNum = 1; currentPageNum < numberOfPages + 1; currentPageNum++) {		
 				// retrieve images from the page
 				var pageImages = new ArrayList<ImageInfo>();
 				new ImageStripper(pageImages).processPage(doc.getPage(currentPageNum - 1));
@@ -42,16 +44,20 @@ public class ScannedImageTextRetriever {
 					continue;
 				}
 				var pageTextLines = new ArrayList<TextLine>();
-				var stripper = new TextAndTextPositionStripper(pageTextLines);
+				var pageCharacterRenderingModes = new HashMap<TextPosition, RenderingMode>();
+				var stripper = new TextAndTextPositionStripper(pageTextLines, pageCharacterRenderingModes);
 				stripper.setStartPage(currentPageNum);
 				stripper.setEndPage(currentPageNum);
 				stripper.getText(doc);
-				// only retain text lines which are contained by the image
-				var imageText = new ArrayList<TextLine>();
+				// only retain text lines which are contained by the image and their first character rendering mode is invisible
+				var imageTextLines = new ArrayList<TextLine>();
 				for (var image : pageImages) {
-					pageTextLines.stream().filter(textLine -> textIsInImage(image, textLine)).forEach(imageText::add);
-				}
-				documentTextLinesPerImage.add(imageText);
+					pageTextLines.stream()
+					.filter(textLine -> textIsInImage(image, textLine))
+					.filter(textLine -> pageCharacterRenderingModes.get(textLine.firstCharacter()) == RenderingMode.NEITHER)
+					.forEach(imageTextLines::add);
+				}				
+				documentTextLinesPerImage.add(imageTextLines);
 			}
 			return documentTextLinesPerImage;
 		}
