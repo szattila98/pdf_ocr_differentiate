@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 
 /**
- * Contains image metadata, which is needed to couple images to captions.
+ * Represents and image dimensions.
  * 
  * @author Szőke Attila
  */
@@ -12,7 +12,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class ImageInfo {
 	private float bottomLeftX;
-	private float bottomLeftY; 
-	private int topRightX;
-	private int topRightY;
+	private float bottomLeftY;
+	private float topRightX;
+	private float topRightY;
 }

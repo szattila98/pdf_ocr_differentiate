@@ -33,7 +33,7 @@ public class ResultWriter {
 	 */
 	public void write(List<List<String>> imageLinesList) throws IOException {
 		try (var document = new PDDocument()) {
-			// page information				
+			// page information
 			PDRectangle mediabox = new PDPage().getMediaBox();
 			int allowedWidth = (int) (mediabox.getWidth() - 2 * MARGIN);
 			float startX = mediabox.getLowerLeftX() + MARGIN;
@@ -48,13 +48,13 @@ public class ResultWriter {
 			// sublists for pages based on lines
 			List<List<String>> lineLists = new ArrayList<>();
 			for (var brokenLines : brokenLinesList) {
-				 lineLists.addAll(Lists.partition(brokenLines, lineNoOnPage));
+				lineLists.addAll(Lists.partition(brokenLines, lineNoOnPage));
 			}
 			// writing to doc
 			for (var subList : lineLists) {
 				// new page
 				var page = new PDPage();
-				document.addPage(page);				
+				document.addPage(page);
 				// writing to page
 				try (var contentStream = new PDPageContentStream(document, page)) {
 					contentStream.beginText();
@@ -76,7 +76,7 @@ public class ResultWriter {
 	 * Breaks a long String to lines so it does not clip out from a page.
 	 * 
 	 * @param documentLines the list of captions
-	 * @param allowedWidth            the width of writable space
+	 * @param allowedWidth  the width of writable space
 	 * @return broken list of lines to write
 	 * @throws IOException thrown when there is an error getting font width info
 	 */
@@ -86,19 +86,19 @@ public class ResultWriter {
 			var text = docLine.toString();
 			String[] words = text.split(" ");
 			var newLine = new StringBuilder();
-		    for(String word : words) {
-		        if(!newLine.isEmpty()) {
-		            newLine.append(" ");
-		        }
-		        int size = (int) (FONT_SIZE * FONT_TYPE.getStringWidth(newLine + word) / 1000);
-		        if(size > allowedWidth) {
-		            brokenLines.add(newLine.toString());
-		            newLine.replace(0, newLine.length(), word);
-		        } else {
-		        	newLine.append(word);
-		        }
-		    }
-		    brokenLines.add(newLine.toString());
+			for (String word : words) {
+				if (!newLine.isEmpty()) {
+					newLine.append(" ");
+				}
+				int size = (int) (FONT_SIZE * FONT_TYPE.getStringWidth(newLine + word) / 1000);
+				if (size > allowedWidth) {
+					brokenLines.add(newLine.toString());
+					newLine.replace(0, newLine.length(), word);
+				} else {
+					newLine.append(word);
+				}
+			}
+			brokenLines.add(newLine.toString());
 		}
 		return brokenLines;
 	}

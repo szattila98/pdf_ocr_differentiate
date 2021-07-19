@@ -16,16 +16,16 @@ import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.pdmodel.graphics.PDXObject;
 import org.apache.pdfbox.pdmodel.graphics.form.PDFormXObject;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImage;
-import org.apache.pdfbox.pdmodel.graphics.state.PDExtendedGraphicsState;
 
 import ch.dachs.pdf_ocr_differentiate.core.ImageInfo;
 
 /**
- * Extension of PDFStreamEngine class. It finds real images (not drawings).
+ * Extension of PDFStreamEngine class. It finds real images and extracts
+ * information about them.
  * 
  * @author Szőke Attila
  */
-public class ImageStripper extends PDFStreamEngine {
+public class ImageInfoStripper extends PDFStreamEngine {
 
 	private final List<ImageInfo> pageImages;
 
@@ -35,7 +35,7 @@ public class ImageStripper extends PDFStreamEngine {
 	 * @param pageImages the image result list
 	 * @throws IOException operator adding exception
 	 */
-	public ImageStripper(List<ImageInfo> pageImages) throws IOException {
+	public ImageInfoStripper(List<ImageInfo> pageImages) throws IOException {
 		addOperator(new Concatenate());
 		addOperator(new DrawObject());
 		addOperator(new SetGraphicsStateParameters());
@@ -47,7 +47,7 @@ public class ImageStripper extends PDFStreamEngine {
 
 	/**
 	 * ProcessPage calls this on every object. It checks whether the object is an
-	 * image then adds images into the result list.
+	 * image then adds info about images into the result list.
 	 */
 	@Override
 	protected void processOperator(Operator operator, List<COSBase> operands) throws IOException {
@@ -65,7 +65,8 @@ public class ImageStripper extends PDFStreamEngine {
 				float xPosition = trMatrix.getTranslateX(); // positions in userSpaceUnits
 				float yPosition = trMatrix.getTranslateY(); // positions in userSpaceUnits
 				if (imageWidth > 1 && imageHeight > 1) {
-					pageImages.add(new ImageInfo(xPosition, yPosition, imageWidth, imageHeight));
+					pageImages
+							.add(new ImageInfo(xPosition, yPosition, xPosition + imageWidth, yPosition + imageHeight));
 				}
 			} else if (xobject instanceof PDFormXObject) {
 				PDFormXObject form = (PDFormXObject) xobject;
